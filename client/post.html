@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+	<title>Document</title>
+
+	<script>
+		$(document).ready(function () {
+			$(".userJob").text($.cookie('userjob'));
+			$(".userName").text($.cookie('username'));
+		})
+	</script>
+
+	<style>
+		.post {
+			border: 1px gray solid;
+			padding: 10px;
+			margin-left: 30%;
+			margin-right: 30%;
+			margin-bottom: 5px;
+		}
+	</style>
+
+</head>
+<body>
+
+	<div style="position: fixed; margin-left: 75%; margin-top: 30px; background-color: blanchedalmond; z-index: 1;">
+		<div style="border: 1px beige solid; text-align: center; width: 300px;">
+			<div>
+				<div style="margin: 10px"><span>직급: </span> <span class="userJob"></span></div>
+				<div style="margin: 10px"><span>이름: </span> <span class="userName"></span></div>
+			</div>
+		</div>
+	</div>
+
+	<form id='postForm' action="../server/post.php" method="post" enctype="multipart/form-data" style="margin: 20px auto; width:300px; text-align: center;">
+		<fieldset>
+			<legend>Post</legend>
+			<input type="file" name="postImage" id="postImage" style="width: 200px;"><br/>
+			<button type="button" style="margin-top: 10px; width: 100px; height: 50px;" onclick="test1(); return false;">Post</button>
+		</fieldset>
+	</form>
+	
+	<script>
+		function test1 (){
+			var form = $("form")[0];
+			var formData = new FormData(form);
+
+			$.ajax({
+				url: "../server/post.php",
+				type: 'POST',
+				data: formData,
+				processData: false,
+        contentType: false,
+				cache : false,
+				success: function (data) {
+					$.map(data, function(v) {
+						var p = jQuery.parseJSON(v)
+						var image = p['imagePath'];
+						var name = p['writer'];
+	 					var ele = 
+						 '<div class="post"> \
+	 							<h2>'+name+'</h2> \
+	 							<img src="'+'../server/image/'+image+'"> \
+	 							<h3>Comments</h3> \
+	 							<div> \
+	 								<div><span>asdf:  </span>good</div> \
+	 								<div><span>qwer:  </span>greate</div> \
+	 							</div> \
+	 						</div>'
+	 					$('.posts').append(ele)
+					})
+				},
+
+				error:function () {
+					console.log("error");
+				}
+			});
+		}
+	</script>
+	<div class="posts" style="text-align: center;"></div>
+
+</body>
+</html>
