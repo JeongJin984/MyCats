@@ -18,19 +18,27 @@
 
 	if (move_uploaded_file($_FILES["postImage"]["tmp_name"], $new_target_file)) {
 		$query = "insert into sample.post values (NULL, '$temp', $curid,'$curuser')";
-		mysqli_query($dbc,$query) or die("query error");
-
-		$query = "select photo,writer,poster from sample.post";
+		mysqli_query($dbc,$query);
+		
+		$query = "select * from sample.post where photo='$temp'";
 		$result = mysqli_query($dbc,$query) or die("query error");
 
+		$row = mysqli_fetch_assoc($result);
+		$obj = ['writer' => $row['poster'], 'imagePath' => $row['photo'], 'id' => $row['id']];
+		
+		echo json_encode($obj);
+	}	else {
+		$query = "select * from sample.post";
+		$result = mysqli_query($dbc,$query) or die("query error");
+	
 		while($row = mysqli_fetch_assoc($result)) {
-			$obj = ['writer' => $row['poster'], 'imagePath' => $row['photo']];
+			$obj = ['writer' => $row['poster'], 'imagePath' => $row['photo'], 'id' => $row['id']];
 			$JSONobj = json_encode($obj);
 			array_push($arr, $JSONobj);
-		}	
-	} 
-
-	echo json_encode($arr);
+		}
+	
+		echo json_encode($arr);
+	}
 
 	mysqli_free_result($result);
 	mysqli_close($dbc);
