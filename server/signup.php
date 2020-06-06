@@ -19,6 +19,9 @@
 
 			$result = mysqli_query($dbc, $query) or die("error");
 
+			$_COOKIE('username',$name,time()+3600, '/');
+			$_COOKIE('userjob',$job,time()+3600, '/');
+
 			header('location:'.'../client/post.html');
 		}
 	?>

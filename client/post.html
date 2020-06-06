@@ -62,29 +62,14 @@
 	</form>
 	
 	<script>
-		function Addcomment() {
-			var form = $("#commentForm")[0];
-			var formData = new FormData(form);
-
-			$.ajax({
-				url: "../server/post.php",
-				type: 'POST',
-				data: formData,
-				processData: false,
-        contentType: false,
-				cache : false,
-				success: function (data) {
-				},
-				error:function () {
-					console.log("error");
-				}
-			})
-		}
-
 		function Addpost (){
 			var form = $("#postForm")[0];
 			var formData = new FormData(form);
 
+			var dataArr = [];
+			var isArr = true;
+			var postid = 0;
+
 			$.ajax({
 				url: "../server/post.php",
 				type: 'POST',
@@ -93,61 +78,44 @@
         contentType: false,
 				cache : false,
 				success: function (data) {
-
-					console.log(data);
-
-					if(Array.isArray(data)) {
+						if(!Array.isArray(data)) {
+							isArr = false
+							dataArr.push(data);
+							data = dataArr;
+						}
 						$.map(data, function(v) {
-							var p = jQuery.parseJSON(v)
-							var image = p['imagePath'];
-							var name = p['writer'];
-							var postid = ''+p['id'];
+						if(isArr) {
+							var p = jQuery.parseJSON(v);
+						} else {
+							var p = v;
+						}
+						var image = p['imagePath'];
+						var name = p['writer'];
+						postid = ''+p['id'];
 
-	 						var post = 
-						    '<div id="post" class="post'+postid+'"> \
-	 								<h2>'+name+'</h2> \
-	 								<img class="postImage" src="'+'../server/image/'+image+'"> \
-	 								<h3>Comments</h3> \
-	 								<div class="comments'+postid+'"> \
-	 								</div> \
-	 						 	</div>';
-	 						$('.posts').append(post);
-							
-							var comment = '<div><span>asdf:  </span>good</div>';
+						var post = 
+							'<div id="post" class="post'+postid+'"> \
+								<h2>'+name+'</h2> \
+								<img class="postImage" src="'+'../server/image/'+image+'"> \
+								<h3>Comments</h3> \
+								<div class="comments'+postid+'"> \
+								</div> \
+							</div>';
+						$('.posts').append(post);
+						
+						$.map(jQuery.parseJSON(p['comment']), function(v) {
+							var temp = jQuery.parseJSON(v);
+							var comment = '<div><span>'+temp['writer']+':  </span>'+temp['comment']+'</div>';
 							$('.comments'+postid).append(comment);
-
-							var commentForm = 
-								'<form id="commentForm" action="../server/post.php" method="post">\
-									<Input type="text"></Input> \
-									<button onclick="Addcomment(); return false;">Post</button> \
-								</form>';
-							$('.post'+postid).append(commentForm);
-						})
-					} else {
-						var image = data['imagePath'];
-						var name = data['writer'];
-						var postid = ''+data['id'];
-
-	 					var post = 
-						 '<div id="post" class="post'+postid+'"> \
-	 							<h2>'+name+'</h2> \
-	 							<img class="postImage" src="'+'../server/image/'+image+'"> \
-	 							<h3>Comments</h3> \
-	 							<div class="comments'+postid+'"> \
-	 							</div> \
-	 						</div>'
-	 					$('.posts').append(post)
-
-						var comment = '<div><span>asdf:  </span>good</div>';
-						$('.comments'+postid).append(comment);
+						}) 						
 
 						var commentForm = 
-								'<form id="commentForm" action="../server/post.php" method="post"> \
-									<Input type="text"></Input> \
-									<button onclick="Addcomment(); return false;">Post</button> \
-								</form>';
+							'<form id="commentForm'+postid+'" action="../server/comment.php?postid='+postid+'" method="post">\
+								<Input type="text" name="comment"></Input> \
+								<button id='+postid+' onclick="Addcomment(this.id); return false;">Post</button> \
+							</form>';
 						$('.post'+postid).append(commentForm);
-					}
+					});
 				},
 
 				error:function () {
@@ -156,6 +124,31 @@
 			});
 		}
 		window.onload = Addpost();
+	</script>
+
+	<script>
+		function Addcomment(clickedID) {
+			var form = $("#commentForm"+clickedID)[0];
+			var formData = new FormData(form);
+
+			$.ajax({
+				url: "../server/comment.php?postid="+clickedID,
+				enctype: 'multipart/form-data',
+				type: 'POST',
+				data: formData,
+				processData: false,
+        contentType: false,
+				cache : false,
+				success: function (data) {
+					var comment = '<div><span>'+$.cookie('username')+':  </span>'+data['comment']+'</div>';
+					$('.comments'+clickedID).append(comment);
+				},
+				error:function (error) {
+					console.log(error);
+					alert('error');
+				}
+			})
+		}
 	</script>
 	<div class="posts" style="text-align: center;"></div>
 
