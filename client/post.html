@@ -43,7 +43,6 @@
 
 </head>
 <body>
-
 	<div style="position: fixed; margin-left: 75%; margin-top: 30px; background-color: blanchedalmond; z-index: 1;">
 		<div style="border: 1px beige solid; text-align: center; width: 300px;">
 			<div>
@@ -57,7 +56,7 @@
 		<fieldset>
 			<legend>Post</legend>
 			<input type="file" name="postImage" id="postImage" style="width: 200px;"><br/>
-			<button type="button" style="margin-top: 10px; width: 100px; height: 50px;" onclick="Addpost(); return false;">Post</button>
+			<button type="button" style="margin-top: 10px; width: 100px; height: 50px;" 				onclick="Addpost()">Post</button>
 		</fieldset>
 	</form>
 	
@@ -96,6 +95,7 @@
 						var post = 
 							'<div id="post" class="post'+postid+'"> \
 								<h2>'+name+'</h2> \
+								<button id='+postid+' onclick="RemovePost(this.id); return false;">Remove</button> \
 								<img class="postImage" src="'+'../server/image/'+image+'"> \
 								<h3>Comments</h3> \
 								<div class="comments'+postid+'"> \
@@ -150,6 +150,25 @@
 			})
 		}
 	</script>
+
+<script>
+	function RemovePost(clickedID) {
+		$.ajax({
+			url: "../server/post.php?removeid="+clickedID,
+			type: 'POST',
+			data: null,
+			processData: false,
+			contentType: false,
+			cache : false,
+			success: function (data) {
+				location.reload();
+			},
+			error:function (error) {
+				location.reload();
+			}
+		})
+	}
+</script>
 	<div class="posts" style="text-align: center;"></div>
 
 

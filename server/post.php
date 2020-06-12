@@ -2,7 +2,7 @@
 	header("Content-Type: application/json");
 	$dbc = mysqli_connect('localhost:5507', 'root', 'phpbook', 'sample') or die("Connect Error");
 
-	if(!$_GET['postid']){
+	if(!$_GET['postid'] && !$_GET['removeid']){
 		$target_dir = 'image/';
 		$target_file = $target_dir . basename($_FILES["postImage"]["name"]);
 		$uploadOk = 1;
@@ -57,6 +57,12 @@
 			echo json_encode($arr);
 			$commArr = array();
 		}
+	} else if($_GET['removeid']) {
+		$id = $_GET['removeid'];
+		$query = "delete from sample.comment where postid=$id";
+		$result = mysqli_query($dbc, $query);
+		$query = "delete from sample.post where id=$id;";
+		$result = mysqli_query($dbc, $query) or die("error");
 	} else {
 		$postid = $_GET['postid'];
 
